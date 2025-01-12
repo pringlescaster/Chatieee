@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
 import googleIcon from "../../public/googleIcon.svg";
 import Stroke from "../../public/Line 5.svg";
@@ -9,13 +10,14 @@ import emailIcon from "../../public/emailIcon.svg";
 import passwordIconn from "../../public/passwordIconn.svg";
 import chatiee from "../../public/chatiee.svg";
 import {
-  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  sendPasswordResetEmail,
   signInWithPopup,
   GoogleAuthProvider,
   
 } from "firebase/auth";
-import { auth, db } from "../lib/firebase";
-import { doc, setDoc } from "firebase/firestore";
+import { auth} from "../lib/firebase";
+// import { doc, setDoc } from "firebase/firestore";
 
 function Page() {
   const [email, setEmail] = useState("");
@@ -24,48 +26,45 @@ function Page() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
-  const handleSignUp = async (e) => {
+  const router = useRouter();
+
+  const handleSignIn = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError("");
     setSuccess("");
 
+   
+
     try {
  
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      console.log("User signed up:", userCredential.user);
-
-      // Save user to Firestore
-      await setDoc(doc(db, "users", userCredential.user.uid), {
-        email: userCredential.user.email,
-        profilePicture: "",
-      });
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      console.log("User signed in:", userCredential.user);
       setSuccess("Account created successfully");
+
+      router.push('/dashboard')
+
     } catch (error) {
-      setError("Error creating account");
+      setError("Incorrect credentials, please enter valid email and password");
     } finally {
       setLoading(false);
     }
   };
 
   const handleGoogleSignin = async () => {
+    const provider = new GoogleAuthProvider();
     setLoading(true);
     setError("");
     setSuccess("");
-
-    const provider = new GoogleAuthProvider();
     try {
-      const userCredential = await signInWithPopup(auth, provider);
-      console.log("User signed in with Google:", userCredential.user);
+      const result = await signInWithPopup(auth, provider);
+      console.log("User signed in with Google:", result.user);
+      setSuccess("Logged in with Google successfully")
 
-      // Save user info to Firestore
-      await setDoc(doc(db, "users", userCredential.user.uid), {
-        email: userCredential.user.email,
-        profilePicture: userCredential.user.photoURL,
-      });
-      setSuccess("Account created successfully");
+      router.push('/dashboard')
+     
     } catch (error) {
-      setError("Error creating account");
+      setError("Incorrect credentials, please enter valid email and password");
     } finally {
       setLoading(false);
     }
@@ -73,18 +72,18 @@ function Page() {
 
   return (
     <div className="bg-[#141414] flex justify-center flex-col gap-y-8 px-4  md:px-6 md:py-12  h-screen ">
-      <Image className="size-24" src={chatiee} alt="Chatiee Logo" />
+      <Image className=" size-24" src={chatiee} alt="Chatiee Logo" />
 
       <form
-        onSubmit={handleSignUp}
+        onSubmit={handleSignIn}
         className="lg:bg-[#212121] md:mx-auto gap-y-[16px] border-[1px] bg-none border-none md:border-white/15 md:rounded-xl flex flex-col md:w-[90%] lg:w-[35%] h-screen py-4 md:px-8 px-3 justify-start md:justify-center"
       >
         {error && <p className=" text-red-500">{error}</p>}
         {success && <p className="mb-4 text-green-500">{success}</p>}
         <div className="flex flex-col text-left gap-y-[2px]">
-          <h1 className="text-lg font-semibold">Create Account</h1>
+          <h1 className="text-lg font-semibold">Log in to your Account</h1>
           <p className="text-sm font-light text-white/80">
-            Welcome! Select a method to sign up
+          Welcome back! Select method to log in
           </p>
         </div>
 
@@ -116,6 +115,7 @@ function Page() {
               required
             />
           </div>
+          <div className="grid gap-y-[8px]">
           <div className="flex gap-x-[8px] bg-[#2B2B2B]/30 border-white/15 border-[1px] px-[14px] py-[10px] rounded-[10px] w-full">
             <Image src={passwordIconn} alt="Password Icon" />
             <input
@@ -128,19 +128,22 @@ function Page() {
               required
             />
           </div>
+          <button className="text-right font-semibold text-sm bg-ray-100">Forgot Password</button>
+          </div>
+         
         </div>
         <button
           type="submit"
           disabled={loading}
           className="bg-gray-100 mt-4 text-[#151515] py-[10px] rounded-[10px] font-semibold"
         >
-          {loading ? "Signing Up..." : "Sign Up"}
+          {loading ? "Logging In..." : "Log In"}
         </button>
 
         <div className="text-sm flex gap-x-[4px] items-center justify-center text-center">
-          <h1 className="text-white/80">Already have an account?</h1>
+          <h1 className="text-white/80">Don't have an account?</h1>
           <Link href="/sign-in">
-            <button className="text-gray-100">Sign In</button>
+            <button className="text-gray-100">Sign Up</button>
           </Link>
         </div>
       </form>
