@@ -41,6 +41,7 @@ function Page() {
         profilePicture: "",
       });
       setSuccess("Account created successfully");
+      router.push('/chats')
     } catch (error) {
       setError("Error creating account");
     } finally {
@@ -64,6 +65,7 @@ function Page() {
         profilePicture: userCredential.user.photoURL,
       });
       setSuccess("Account created successfully");
+      router.push('/chats')
     } catch (error) {
       setError("Error creating account");
     } finally {
@@ -72,12 +74,12 @@ function Page() {
   };
 
   return (
-    <div className="bg-[#141414] flex justify-center flex-col gap-y-8 px-4  md:px-6 md:py-12  h-screen ">
+    <div className="bg-[#141414] w-screen flex justify-center flex-col gap-y-8 px-4  md:pt-4 md:py-8  h-screen ">
       <Image className="size-24" src={chatiee} alt="Chatiee Logo" />
 
       <form
         onSubmit={handleSignUp}
-        className="lg:bg-[#212121] md:mx-auto gap-y-[16px] border-[1px] bg-none border-none md:border-white/15 md:rounded-xl flex flex-col md:w-[90%] lg:w-[35%] h-screen py-4 md:px-8 px-3 justify-start md:justify-center"
+        className="lg:bg-[#212121] md:mx-auto gap-y-[24px] md:gap-y-[16px] border-[1px] bg-none border-none md:border-white/15 md:rounded-xl flex flex-col md:w-[90%] lg:w-[35%] h-screen py-4 md:px-8 px-3 justify-start"
       >
         {error && <p className=" text-red-500">{error}</p>}
         {success && <p className="mb-4 text-green-500">{success}</p>}
